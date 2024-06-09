@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_expense_tracker/data/data.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -194,7 +195,79 @@ class MainScreen extends StatelessWidget {
                   )
                 ],
               ),
-            )
+            ),
+            const SizedBox(
+              height: 36,
+            ),
+            Row(
+              children: [
+                Text(
+                  'Ostatnie transakcje',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onBackground),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    'Zobacz wszystko',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.tertiary),
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: transactionsData.length,
+              itemBuilder: (context, i) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: transactionsData[i]['color']),
+                          child: Center(child: transactionsData[i]['icon']),
+                        ),
+                        title: Text(
+                          transactionsData[i]['name'],
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Theme.of(context).colorScheme.onBackground),
+                        ),
+                        subtitle: Text(
+                          transactionsData[i]['date'],
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      transactionsData[i]['totalAmount'],
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: transactionsData[i]['color']),
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
