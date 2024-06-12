@@ -1,7 +1,16 @@
+import 'package:bloc/bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:expense_repository/firebase_options.dart';
 import 'package:flutter_expense_tracker/app.dart';
+import 'package:flutter_expense_tracker/simple_bloc_observer.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  Bloc.observer = SimpleBlocObserver();
   runApp(const MyApp());
 }
 
