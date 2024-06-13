@@ -1,10 +1,12 @@
+import 'dart:ffi';
+
 import 'package:expense_repository/expense_repository.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_expense_tracker/screens/add_expense/blocs/get_categories_bloc/bloc/get_categories_bloc.dart';
+import 'package:flutter_expense_tracker/screens/add_expense/views/category_creation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 class AddExpense extends StatefulWidget {
   const AddExpense({super.key});
@@ -20,11 +22,12 @@ class _AddExpenseState extends State<AddExpense> {
   TextEditingController nameController = TextEditingController();
   DateTime selectDate = DateTime.now();
 
-  List<String> myCategoriesIcons = ['food'];
+  late Expense expense;
+
   @override
   void initState() {
     dateController.text = DateFormat('dd.mm.yyyy').format(DateTime.now());
-
+    expense = Expense.empty;
     super.initState();
   }
 
@@ -37,370 +40,180 @@ class _AddExpenseState extends State<AddExpense> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.background,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text('Dodaj transakcję',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500)),
-              const SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: TextFormField(
-                  controller: expenseController,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      label: const Text("Wartość"),
-                      prefixIcon: const Icon(FontAwesomeIcons.moneyBill1,
-                          size: 20, color: Colors.grey)),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: TextFormField(
-                  controller: categoryController,
-                  textAlignVertical: TextAlignVertical.center,
-                  readOnly: true,
-                  onTap: () {},
-                  decoration: InputDecoration(
-                    label: const Text("Kategoria"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    prefixIcon: const Icon(FontAwesomeIcons.layerGroup,
-                        size: 20, color: Colors.grey),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (ctx) {
-                              bool isExpanded = false;
-                              String iconSelected = '';
-                              Color categoryColor = Colors.black12;
-
-                              TextEditingController categoryNameController =
-                                  TextEditingController();
-                              TextEditingController categoryIconController =
-                                  TextEditingController();
-                              TextEditingController categoryColorController =
-                                  TextEditingController();
-
-                              return StatefulBuilder(
-                                builder: (context, setState) {
-                                  return AlertDialog(
-                                      backgroundColor: Colors.black,
-                                      title: const Text('Stwórz kategorię'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextFormField(
-                                            controller: categoryNameController,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            decoration: InputDecoration(
-                                                isDense: true,
-                                                label: const Text("Nazwa"),
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                prefixIcon: const Icon(
-                                                    FontAwesomeIcons.calendar,
-                                                    size: 20,
-                                                    color: Colors.grey)),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          TextFormField(
-                                            controller: categoryIconController,
-                                            onTap: () {
-                                              setState(() {
-                                                isExpanded = !isExpanded;
-                                              });
-                                            },
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            readOnly: true,
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              suffixIcon: const Icon(
-                                                  CupertinoIcons.chevron_down),
-                                              label: const Text("Ikona"),
-                                              border: OutlineInputBorder(
-                                                  borderRadius: isExpanded
-                                                      ? const BorderRadius
-                                                          .vertical(
-                                                          top: Radius.circular(
-                                                              10))
-                                                      : BorderRadius.circular(
-                                                          10)),
-                                              prefixIcon: const Icon(
-                                                  FontAwesomeIcons.icons,
-                                                  size: 20,
-                                                  color: Colors.grey),
-                                            ),
-                                          ),
-                                          isExpanded
-                                              ? Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  height: 200,
-                                                  decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                          color: Colors.grey),
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                              .vertical(
-                                                              bottom: Radius
-                                                                  .circular(
-                                                                      10))),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: GridView.builder(
-                                                        gridDelegate:
-                                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                                                crossAxisCount:
-                                                                    3),
-                                                        itemCount:
-                                                            myCategoriesIcons
-                                                                .length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          return GestureDetector(
-                                                            onTap: () {
-                                                              setState(() {
-                                                                iconSelected =
-                                                                    myCategoriesIcons[
-                                                                        index];
-                                                              });
-                                                            },
-                                                            child: Container(
-                                                              width: 50,
-                                                              height: 50,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                      border: Border.all(
-                                                                          width:
-                                                                              3,
-                                                                          color: iconSelected == myCategoriesIcons[index]
-                                                                              ? Colors
-                                                                                  .green
-                                                                              : Colors
-                                                                                  .grey),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                      image:
-                                                                          DecorationImage(
-                                                                        image: AssetImage(
-                                                                            'assets/${myCategoriesIcons[index]}.png'),
-                                                                      )),
-                                                            ),
-                                                          );
-                                                        }),
-                                                  ))
-                                              : Container(),
-                                          const SizedBox(height: 16),
-                                          TextFormField(
-                                            controller: categoryColorController,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            onTap: () {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (ctxTwo) {
-                                                    return AlertDialog(
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          ColorPicker(
-                                                            pickerColor:
-                                                                categoryColor,
-                                                            onColorChanged:
-                                                                (value) {
-                                                              setState(() {
-                                                                categoryColor =
-                                                                    value;
-                                                              });
-                                                            },
-                                                          ),
-                                                          SizedBox(
-                                                            width:
-                                                                double.infinity,
-                                                            height: 50,
-                                                            child: TextButton(
-                                                                onPressed: () {
-                                                                  print(
-                                                                      categoryColor);
-                                                                  Navigator.pop(
-                                                                      ctxTwo);
-                                                                },
-                                                                style: TextButton
-                                                                    .styleFrom(
-                                                                  backgroundColor: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .primary,
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                  'Zapisz',
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          20,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Colors
-                                                                          .black),
-                                                                )),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    );
-                                                  });
-                                            },
-                                            readOnly: true,
-                                            decoration: InputDecoration(
-                                                isDense: true,
-                                                filled: true,
-                                                fillColor: categoryColor,
-                                                label: const Text("Kolor"),
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                prefixIcon: const Icon(
-                                                    FontAwesomeIcons.palette,
-                                                    size: 20,
-                                                    color: Colors.grey)),
-                                          ),
-                                          const SizedBox(
-                                            height: 16,
-                                          ),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: kToolbarHeight,
-                                            child: TextButton(
-                                                onPressed: () {
-                                                  Category category =
-                                                      Category.empty;
-
-                                                  category.categoryId =
-                                                      const Uuid().v1();
-                                                  category.name =
-                                                      categoryNameController
-                                                          .text;
-                                                  category.icon = iconSelected;
-                                                  category.color =
-                                                      categoryColor.toString();
-                                                  Navigator.pop(context);
-                                                },
-                                                style: TextButton.styleFrom(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                ),
-                                                child: const Text(
-                                                  'Zapisz',
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black),
-                                                )),
-                                          )
-                                        ],
-                                      ));
-                                },
-                              );
+        body: BlocBuilder<GetCategoriesBloc, GetCategoriesState>(
+          builder: (context, state) {
+            if (state is GetCategoriesSuccess) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Dodaj transakcję',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w500)),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: TextFormField(
+                        controller: expenseController,
+                        textAlignVertical: TextAlignVertical.center,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          label: const Text("Wartość"),
+                          prefixIcon: expense.category == Category.empty
+                              ? const Icon(FontAwesomeIcons.moneyBill1,
+                                  size: 20, color: Colors.grey)
+                              : Image.asset(
+                                  'assets/${expense.category.icon}.png',
+                                  scale: 2,
+                                ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: TextFormField(
+                        controller: categoryController,
+                        textAlignVertical: TextAlignVertical.center,
+                        readOnly: true,
+                        onTap: () {},
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: expense.category == Category.empty
+                              ? Colors.black
+                              : Color(expense.category.color),
+                          label: const Text("Kategoria"),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          prefixIcon: const Icon(FontAwesomeIcons.layerGroup,
+                              size: 20, color: Colors.grey),
+                          suffixIcon: IconButton(
+                            onPressed: () async {
+                              var category = await getCategoryCreation(context);
+                              setState(() {
+                                state.categories.insert(0, category);
+                              });
+                            },
+                            icon: const Icon(FontAwesomeIcons.plus,
+                                size: 20, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 200,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.black54,
+                      child: ListView.builder(
+                        itemCount: state.categories.length,
+                        itemBuilder: (context, int i) {
+                          return Card(
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: ListTile(
+                                  onTap: () {
+                                    setState(() {
+                                      expense.category = state.categories[i];
+                                      categoryController.text =
+                                          expense.category.name;
+                                    });
+                                  },
+                                  leading: Image.asset(
+                                    'assets/${state.categories[i].icon}.png',
+                                    scale: 2,
+                                  ),
+                                  title: Text(
+                                    state.categories[i].name,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                  tileColor: Color(state.categories[i].color),
+                                ),
+                              ));
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: TextFormField(
+                        controller: nameController,
+                        textAlignVertical: TextAlignVertical.center,
+                        decoration: InputDecoration(
+                            label: const Text("Nazwa"),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            prefixIcon: const Icon(FontAwesomeIcons.signature,
+                                size: 20, color: Colors.grey)),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: TextFormField(
+                        controller: dateController,
+                        textAlignVertical: TextAlignVertical.center,
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? newDate = await showDatePicker(
+                              context: context,
+                              firstDate: selectDate,
+                              lastDate: DateTime.now()
+                                  .add(const Duration(days: 365)));
+                          if (newDate != null) {
+                            setState(() {
+                              dateController.text =
+                                  DateFormat('dd.MM.yyyy').format(newDate);
+                              selectDate = newDate;
+                              expense.date = newDate;
                             });
-                      },
-                      icon: const Icon(FontAwesomeIcons.plus,
-                          size: 20, color: Colors.grey),
+                          }
+                        },
+                        decoration: InputDecoration(
+                            label: const Text("Data"),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            prefixIcon: const Icon(FontAwesomeIcons.calendar,
+                                size: 20, color: Colors.grey)),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: TextFormField(
-                  controller: nameController,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
-                      label: const Text("Nazwa"),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      prefixIcon: const Icon(FontAwesomeIcons.signature,
-                          size: 20, color: Colors.grey)),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: TextFormField(
-                  controller: dateController,
-                  textAlignVertical: TextAlignVertical.center,
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? newDate = await showDatePicker(
-                        context: context,
-                        firstDate: selectDate,
-                        lastDate:
-                            DateTime.now().add(const Duration(days: 365)));
-                    if (newDate != null) {
-                      setState(() {
-                        dateController.text =
-                            DateFormat('dd.MM.yyyy').format(newDate);
-                        selectDate = newDate;
-                      });
-                    }
-                  },
-                  decoration: InputDecoration(
-                      label: const Text("Data"),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      prefixIcon: const Icon(FontAwesomeIcons.calendar,
-                          size: 20, color: Colors.grey)),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: kToolbarHeight,
-                child: TextButton(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                    const SizedBox(
+                      height: 16,
                     ),
-                    child: const Text(
-                      'Zapisz',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    )),
-              )
-            ],
-          ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: kToolbarHeight,
+                      child: TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                          ),
+                          child: const Text(
+                            'Zapisz',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          )),
+                    )
+                  ],
+                ),
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
         ),
       ),
     );

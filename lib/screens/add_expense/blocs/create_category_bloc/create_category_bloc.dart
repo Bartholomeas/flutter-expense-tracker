@@ -10,7 +10,7 @@ class CreateCategoryBloc
   final ExpenseRepository expenseRepository;
 
   CreateCategoryBloc(this.expenseRepository) : super(CreateCategoryInitial()) {
-    on<CreateCategoryEvent>((event, emit) async {
+    on<CreateCategory>((event, emit) async {
       emit(CreateCategoryLoading());
 
       try {

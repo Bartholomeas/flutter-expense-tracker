@@ -3,7 +3,7 @@ class CategoryEntity {
   String categoryId;
   int totalExpenses;
   String icon;
-  String color;
+  int color;
 
   CategoryEntity(
       {required this.name,
@@ -28,6 +28,6 @@ class CategoryEntity {
         categoryId: doc['categoryId'] as String,
         totalExpenses: doc['totalExpenses'] as int,
         icon: doc['icon'] as String,
-        color: doc['color'] as String);
+        color: doc['color']);
   }
 }

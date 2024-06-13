@@ -5,8 +5,6 @@ sealed class CreateCategoryEvent extends Equatable {
 
   @override
   List<Object> get props => [];
-
-  Category get category => null;
 }
 
 class CreateCategory extends CreateCategoryEvent {
