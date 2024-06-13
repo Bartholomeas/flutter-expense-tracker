@@ -1,5 +1,10 @@
+import 'package:expense_repository/expense_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_expense_tracker/screens/add_expense/blocs/create_category_bloc/create_category_bloc.dart';
+import 'package:flutter_expense_tracker/screens/add_expense/blocs/get_categories_bloc/bloc/get_categories_bloc.dart';
+import 'package:flutter_expense_tracker/screens/add_expense/views/add_expense.dart';
 import 'package:flutter_expense_tracker/screens/home/views/main_screen.dart';
 import 'package:flutter_expense_tracker/screens/stats/stats_screen.dart';
 
@@ -63,7 +68,25 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                  builder: ((BuildContext context) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create: (context) =>
+                                CreateCategoryBloc(FirebaseExpenseRepo()),
+                          ),
+                          BlocProvider(
+                            create: (context) =>
+                                GetCategoriesBloc(FirebaseExpenseRepo())
+                                  ..add(GetCategories()),
+                          ),
+                        ],
+                        child: const AddExpense(),
+                      ))));
+        },
         child: const Icon(CupertinoIcons.plus),
       ),
       body: index == 0 ? const MainScreen() : const StatScreen(),
