@@ -1,9 +1,13 @@
+import 'package:expense_repository/expense_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expense_tracker/data/data.dart';
+import 'package:intl/intl.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+  final List<Expense> expenses;
+
+  const MainScreen(this.expenses, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,57 +16,54 @@ class MainScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.yellow),
-                          ),
-                          Icon(
-                            CupertinoIcons.person_fill,
-                            color: Theme.of(context).colorScheme.background,
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        width: 12,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Witaj",
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.outline),
-                          ),
-                          Text(
-                            'Bartosz',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.onBackground),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(CupertinoIcons.settings))
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.yellow),
+                        ),
+                        Icon(
+                          CupertinoIcons.person_fill,
+                          color: Theme.of(context).colorScheme.background,
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 12,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Witaj",
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
+                        Text(
+                          'Bartosz',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Theme.of(context).colorScheme.onBackground),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(CupertinoIcons.settings))
+              ],
             ),
             const SizedBox(
               height: 20,
@@ -225,7 +226,7 @@ class MainScreen extends StatelessWidget {
             ),
             ListView.builder(
               shrinkWrap: true,
-              itemCount: transactionsData.length,
+              itemCount: expenses.length,
               itemBuilder: (context, i) {
                 return Row(
                   children: [
@@ -236,11 +237,16 @@ class MainScreen extends StatelessWidget {
                           height: 50,
                           decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: transactionsData[i]['color']),
-                          child: Center(child: transactionsData[i]['icon']),
+                              color: Color(expenses[i].category.color)),
+                          child: Image.asset(
+                              'assets/${expenses[i].category.icon}.png',
+                              scale: 3,
+                              color: Colors.white),
+                          // child: Image.asset(
+                          //     'assets/${expenses[i].category.icon}.png'),
                         ),
                         title: Text(
-                          transactionsData[i]['name'],
+                          expenses[i].category.name,
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -248,7 +254,7 @@ class MainScreen extends StatelessWidget {
                                   Theme.of(context).colorScheme.onBackground),
                         ),
                         subtitle: Text(
-                          transactionsData[i]['date'],
+                          DateFormat('dd.MM.yyyy').format(expenses[i].date),
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -257,7 +263,7 @@ class MainScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      transactionsData[i]['totalAmount'],
+                      '- ${expenses[i].amount}.00 PLN',
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
