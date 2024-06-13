@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_repository/expense_repository.dart';
+import 'package:expense_repository/src/entities/entities.dart';
 
 class FirebaseExpenseRepo implements ExpenseRepository {
   final categoryCollection =
@@ -37,6 +38,18 @@ class FirebaseExpenseRepo implements ExpenseRepository {
       await expenseCollection
           .doc(expense.expenseId)
           .set(expense.toEntity().toDocument());
+    } catch (err) {
+      print(err.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Expense>> getExpenses() async {
+    try {
+      return await expenseCollection.get().then((value) => value.docs
+          .map((e) => Expense.fromEntity(ExpenseEntity.fromDocument(e.data())))
+          .toList());
     } catch (err) {
       print(err.toString());
       rethrow;
